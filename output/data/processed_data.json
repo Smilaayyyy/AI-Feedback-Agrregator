@@ -1,0 +1,79 @@
+{
+  "status": "success",
+  "data": {
+    "cleaned_data": [
+      {
+        "platform": "twitter",
+        "text": "i really love this product! #feedback",
+        "timestamp": "2023-01-15 10:30:00",
+        "likes": 25.0,
+        "shares": 5.0,
+        "source": "social",
+        "average_rating": NaN,
+        "feedback_count": NaN,
+        "total_responses": NaN,
+        "sentiment": "positive"
+      },
+      {
+        "platform": "twitter",
+        "text": "not happy with my purchase. #feedback",
+        "timestamp": "2023-01-16 14:20:00",
+        "likes": 3.0,
+        "shares": 0.0,
+        "source": "social",
+        "average_rating": NaN,
+        "feedback_count": NaN,
+        "total_responses": NaN,
+        "sentiment": "neutral"
+      },
+      {
+        "platform": "twitter",
+        "text": "this is an average product. #feedback",
+        "timestamp": "2023-01-17 09:15:00",
+        "likes": 10.0,
+        "shares": 2.0,
+        "source": "social",
+        "average_rating": NaN,
+        "feedback_count": NaN,
+        "total_responses": NaN,
+        "sentiment": "neutral"
+      },
+      {
+        "platform": "google",
+        "text": "nan",
+        "timestamp": "NaT",
+        "likes": NaN,
+        "shares": NaN,
+        "source": "review",
+        "average_rating": 3.6666666666666665,
+        "feedback_count": 3.0,
+        "total_responses": NaN,
+        "sentiment": "neutral"
+      },
+      {
+        "platform": "yelp",
+        "text": "nan",
+        "timestamp": "NaT",
+        "likes": NaN,
+        "shares": NaN,
+        "source": "review",
+        "average_rating": 3.6666666666666665,
+        "feedback_count": 3.0,
+        "total_responses": NaN,
+        "sentiment": "neutral"
+      },
+      {
+        "platform": "nan",
+        "text": "nan",
+        "timestamp": "NaT",
+        "likes": NaN,
+        "shares": NaN,
+        "source": "survey",
+        "average_rating": 0.0,
+        "feedback_count": NaN,
+        "total_responses": 0.0,
+        "sentiment": "neutral"
+      }
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "social_data": {
+    "status": "success",
+    "data": {
+      "social_data": [
+        {
+          "platform": "Twitter",
+          "text": "I really love this product! #feedback",
+          "timestamp": "2023-01-15 10:30:00",
+          "likes": 25,
+          "shares": 5
+        },
+        {
+          "platform": "Twitter",
+          "text": "Not happy with my purchase. #feedback",
+          "timestamp": "2023-01-16 14:20:00",
+          "likes": 3,
+          "shares": 0
+        },
+        {
+          "platform": "Twitter",
+          "text": "This is an average product. #feedback",
+          "timestamp": "2023-01-17 09:15:00",
+          "likes": 10,
+          "shares": 2
+        }
+      ],
+      "platform": "Twitter",
+      "format": "text"
+    }
+  },
+  "review_data": {
+    "status": "success",
+    "data": {
+      "Google": {
+        "average_rating": 3.6666666666666665,
+        "feedback_count": 3,
+        "status": "success"
+      },
+      "Yelp": {
+        "average_rating": 3.6666666666666665,
+        "feedback_count": 3,
+        "status": "success"
+      }
+    }
+  },
+  "survey_data": {
+    "data": {
+      "survey_data": [
+        {
+          "rating": 4,
+          "feedback": "The product meets my expectations",
+          "timestamp": "2023-01-20 09:30:00",
+          "form_id": "default_form"
+        },
+        {
+          "rating": 3,
+          "feedback": "Average product, could be improved",
+          "timestamp": "2023-01-21 14:15:00",
+          "form_id": "default_form"
+        },
+        {
+          "rating": 5,
+          "feedback": "Excellent product, highly recommend",
+          "timestamp": "2023-01-22 11:45:00",
+          "form_id": "default_form"
+        }
+      ]
+    },
+    "metadata": {
+      "timestamp": "2025-05-02T19:46:50.386670",
+      "source": "survey_form_collector"
+    }
+  },
+  "timestamp": "2025-05-02T19:46:50.387655"
+}

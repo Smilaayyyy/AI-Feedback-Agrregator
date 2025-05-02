@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+httpx
+beautifulsoup4
+textblob
+matplotlib
+pandas
+scikit-learn
+nltk
+seaborn

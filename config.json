@@ -1,0 +1,19 @@
+{
+  "social": {
+    "platform": "Twitter",
+    "hashtags": [
+      "#feedback"
+    ],
+    "date_range": "last_30_days"
+  },
+  "review": {
+    "websites": [
+      "Google",
+      "Yelp"
+    ],
+    "date_range": "last_30_days"
+  },
+  "survey": {
+    "form_id": "default_form"
+  }
+}

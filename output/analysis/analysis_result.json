@@ -1,0 +1,188 @@
+{
+  "status": "success",
+  "data": {
+    "feedback_data": [
+      {
+        "platform": "twitter",
+        "text": "i really love this product! #feedback",
+        "timestamp": "2023-01-15T10:30:00",
+        "likes": 25.0,
+        "shares": 5.0,
+        "source": "social",
+        "average_rating": NaN,
+        "feedback_count": NaN,
+        "total_responses": NaN,
+        "sentiment": "positive",
+        "category": "positive_feedback",
+        "urgency": "low",
+        "day": "2023-01-15"
+      },
+      {
+        "platform": "twitter",
+        "text": "not happy with my purchase. #feedback",
+        "timestamp": "2023-01-16T14:20:00",
+        "likes": 3.0,
+        "shares": 0.0,
+        "source": "social",
+        "average_rating": NaN,
+        "feedback_count": NaN,
+        "total_responses": NaN,
+        "sentiment": "negative",
+        "category": "positive_feedback",
+        "urgency": "low",
+        "day": "2023-01-16"
+      },
+      {
+        "platform": "twitter",
+        "text": "this is an average product. #feedback",
+        "timestamp": "2023-01-17T09:15:00",
+        "likes": 10.0,
+        "shares": 2.0,
+        "source": "social",
+        "average_rating": NaN,
+        "feedback_count": NaN,
+        "total_responses": NaN,
+        "sentiment": "negative",
+        "category": "other",
+        "urgency": "low",
+        "day": "2023-01-17"
+      },
+      {
+        "platform": "google",
+        "text": "nan",
+        "timestamp": "2025-05-02T19:46:53.603439",
+        "likes": NaN,
+        "shares": NaN,
+        "source": "review",
+        "average_rating": 3.6666666666666665,
+        "feedback_count": 3.0,
+        "total_responses": NaN,
+        "sentiment": "neutral",
+        "category": "other",
+        "urgency": "low",
+        "day": "2025-05-02"
+      },
+      {
+        "platform": "yelp",
+        "text": "nan",
+        "timestamp": "2025-05-02T19:46:53.603439",
+        "likes": NaN,
+        "shares": NaN,
+        "source": "review",
+        "average_rating": 3.6666666666666665,
+        "feedback_count": 3.0,
+        "total_responses": NaN,
+        "sentiment": "neutral",
+        "category": "other",
+        "urgency": "low",
+        "day": "2025-05-02"
+      },
+      {
+        "platform": "nan",
+        "text": "nan",
+        "timestamp": "2025-05-02T19:46:53.603439",
+        "likes": NaN,
+        "shares": NaN,
+        "source": "survey",
+        "average_rating": 0.0,
+        "feedback_count": NaN,
+        "total_responses": 0.0,
+        "sentiment": "neutral",
+        "category": "other",
+        "urgency": "low",
+        "day": "2025-05-02"
+      }
+    ],
+    "sentiment_summary": {
+      "neutral": 3,
+      "negative": 2,
+      "positive": 1
+    },
+    "top_issues": {
+      "other": 4,
+      "positive_feedback": 2
+    },
+    "trend_keywords": [
+      "average",
+      "feedback",
+      "happy",
+      "love",
+      "nan",
+      "product",
+      "purchase",
+      "really"
+    ],
+    "time_trends": {
+      "daily_count": [
+        {
+          "day": "2023-01-15",
+          "count": 1
+        },
+        {
+          "day": "2023-01-16",
+          "count": 1
+        },
+        {
+          "day": "2023-01-17",
+          "count": 1
+        },
+        {
+          "day": "2025-05-02",
+          "count": 3
+        }
+      ],
+      "sentiment_trend": [
+        {
+          "day": "2023-01-15",
+          "negative": 0.0,
+          "neutral": 0.0,
+          "positive": 1.0
+        },
+        {
+          "day": "2023-01-16",
+          "negative": 1.0,
+          "neutral": 0.0,
+          "positive": 0.0
+        },
+        {
+          "day": "2023-01-17",
+          "negative": 1.0,
+          "neutral": 0.0,
+          "positive": 0.0
+        },
+        {
+          "day": "2025-05-02",
+          "negative": 0.0,
+          "neutral": 3.0,
+          "positive": 0.0
+        }
+      ],
+      "category_trend": [
+        {
+          "day": "2023-01-15",
+          "other": 0.0,
+          "positive_feedback": 1.0
+        },
+        {
+          "day": "2023-01-16",
+          "other": 0.0,
+          "positive_feedback": 1.0
+        },
+        {
+          "day": "2023-01-17",
+          "other": 1.0,
+          "positive_feedback": 0.0
+        },
+        {
+          "day": "2025-05-02",
+          "other": 3.0,
+          "positive_feedback": 0.0
+        }
+      ]
+    },
+    "anomalies": {
+      "volume_anomalies": {},
+      "negative_sentiment_anomalies": {}
+    }
+  }
+}
