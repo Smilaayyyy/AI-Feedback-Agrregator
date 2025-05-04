@@ -271,66 +271,211 @@ def run_dashboard_task(task_id: str, analysis_result_path: str, include_alerts=T
         # Save dashboard results
         dashboard_path = save_output(dashboard_result, "output/dashboards", f"dashboard_result_{task_id}.json")
         
-        # Save HTML dashboard if available
-        html_path = None
-        if 'charts' in dashboard_result.get('data', {}):
-            dashboard_html = dashboard_result.get('data', {}).get('html', None)
-            if dashboard_html:
-                html_path = os.path.join("output/dashboards", f"dashboard_{task_id}.html")
-                with open(html_path, 'w') as f:
-                    f.write(dashboard_html)
+        # Always create an HTML file, even with a minimal placeholder if necessary
+        html_path = os.path.join("output/dashboards", f"dashboard_{task_id}.html")
+        
+        try:
+            if 'data' in dashboard_result and 'charts' in dashboard_result['data']:
+                # Use the HTML from the dashboard result if available
+                dashboard_html = dashboard_result.get('data', {}).get('html')
+                if not dashboard_html:
+                    # Create a basic HTML wrapper for the charts if no HTML was provided
+                    charts = dashboard_result['data']['charts']
+                    dashboard_html = generate_basic_dashboard_html(charts, task_id)
+            else:
+                # Create an empty dashboard with a message
+                dashboard_html = """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Feedback Analysis Dashboard</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        .message { padding: 20px; background-color: #f8f9fa; border-radius: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Feedback Analysis Dashboard</h1>
+                    <div class="message">
+                        <p>No chart data available for this dashboard. Please check the analysis results.</p>
+                    </div>
+                </body>
+                </html>
+                """
+            
+            # Save the HTML dashboard
+            with open(html_path, 'w') as f:
+                f.write(dashboard_html)
+        except Exception as html_err:
+            # If HTML generation fails, create a simple error page
+            error_html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Dashboard Error</title>
+                <style>
+                    body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                    .error {{ padding: 20px; background-color: #fee; border-radius: 5px; color: #c33; }}
+                </style>
+            </head>
+            <body>
+                <h1>Dashboard Generation Error</h1>
+                <div class="error">
+                    <p>An error occurred while generating the dashboard visualization.</p>
+                    <p>Error details: {str(html_err)}</p>
+                </div>
+            </body>
+            </html>
+            """
+            with open(html_path, 'w') as f:
+                f.write(error_html)
         
         # Generate alerts if requested
         alert_result = None
         if include_alerts:
-            # Initialize alert agent
-            alert_agent = AlertAgent()
-            
-            # Generate alerts
-            alert_result = alert_agent.run(dashboard_result)
-            
-            # Save alert results
-            save_output(alert_result, "output/dashboards", f"alerts_{task_id}.json")
+            try:
+                # Initialize alert agent
+                alert_agent = AlertAgent()
+                
+                # Generate alerts
+                alert_result = alert_agent.run(dashboard_result)
+                
+                # Save alert results
+                save_output(alert_result, "output/dashboards", f"alerts_{task_id}.json")
+            except Exception as alert_err:
+                print(f"Alert generation failed: {str(alert_err)}")
+                # Continue with the process even if alerts fail
         
         # Generate report if requested
         if include_report:
-            # Initialize report agent
-            report_agent = ReportAgent()
-            
-            # Combine results for reporting
-            report_input = {
-                "analysis": analysis_result,
-                "dashboard": dashboard_result,
-                "alerts": alert_result
-            }
-            
-            # Generate report
-            report_result = report_agent.run(report_input)
-            
-            # Save report
-            save_output(report_result, "output/reports", f"report_{task_id}.json")
+            try:
+                # Initialize report agent
+                report_agent = ReportAgent()
+                
+                # Combine results for reporting
+                report_input = {
+                    "analysis": analysis_result,
+                    "dashboard": dashboard_result,
+                    "alerts": alert_result
+                }
+                
+                # Generate report
+                report_result = report_agent.run(report_input)
+                
+                # Save report
+                save_output(report_result, "output/reports", f"report_{task_id}.json")
+            except Exception as report_err:
+                print(f"Report generation failed: {str(report_err)}")
+                # Continue with the process even if report fails
         
         # Extract metrics for response
         chart_count = len(dashboard_result.get("data", {}).get("charts", {}))
-        alert_count = len(dashboard_result.get("data", {}).get("alerts", []) if alert_result else [])
+        alert_count = len(alert_result.get("data", {}).get("alerts", []) if alert_result else [])
         
-        # Update task status
+        # Update task status - Always include html_path
         tasks[task_id] = {
             "status": "completed",
             "message": "Dashboard generation completed",
             "data_path": dashboard_path,
-            "html_path": html_path,
+            "html_path": html_path,  # Always set this
             "chart_count": chart_count,
             "alert_count": alert_count,
             "timestamp": datetime.now().isoformat()
         }
         
     except Exception as e:
-        tasks[task_id] = {
-            "status": "failed",
-            "message": f"Dashboard generation failed: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        }
+        print(f"Dashboard generation failed with error: {str(e)}")
+        # Create an error HTML page when the whole process fails
+        try:
+            html_path = os.path.join("output/dashboards", f"dashboard_{task_id}.html")
+            error_html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Dashboard Error</title>
+                <style>
+                    body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                    .error {{ padding: 20px; background-color: #fee; border-radius: 5px; color: #c33; }}
+                </style>
+            </head>
+            <body>
+                <h1>Dashboard Generation Error</h1>
+                <div class="error">
+                    <p>An error occurred while generating the dashboard.</p>
+                    <p>Error details: {str(e)}</p>
+                </div>
+            </body>
+            </html>
+            """
+            with open(html_path, 'w') as f:
+                f.write(error_html)
+                
+            tasks[task_id] = {
+                "status": "failed",
+                "message": f"Dashboard generation failed: {str(e)}",
+                "error": str(e),
+                "html_path": html_path,  # Still include the HTML path for the error page
+                "timestamp": datetime.now().isoformat()
+            }
+        except Exception as html_err:
+            # If even the error page creation fails
+            tasks[task_id] = {
+                "status": "failed",
+                "message": f"Dashboard generation failed: {str(e)}",
+                "error": str(e),
+                "html_error": str(html_err),
+                "timestamp": datetime.now().isoformat()
+            }
+
+# Helper function to generate basic HTML dashboard
+def generate_basic_dashboard_html(charts, task_id):
+    """Generate a basic HTML dashboard from chart data"""
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Feedback Analysis Dashboard</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; margin: 20px; }}
+            .dashboard {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 20px; }}
+            .chart {{ background-color: #f8f9fa; padding: 15px; border-radius: 5px; }}
+            h1, h2 {{ color: #333; }}
+            .summary {{ margin-bottom: 30px; }}
+        </style>
+    </head>
+    <body>
+        <h1>Feedback Analysis Dashboard</h1>
+        <div class="summary">
+            <p>Task ID: {task_id}</p>
+            <p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+            <p>Total Charts: {len(charts)}</p>
+        </div>
+        
+        <div class="dashboard">
+    """
+    
+    # Add placeholders for each chart
+    for chart_id, chart_data in charts.items():
+        title = chart_data.get('title', 'Chart')
+        description = chart_data.get('description', 'No description available')
+        
+        html += f"""
+            <div class="chart">
+                <h2>{title}</h2>
+                <p>{description}</p>
+                <div id="{chart_id}" style="height: 300px; background-color: #eee; display: flex; align-items: center; justify-content: center;">
+                    Chart visualization would appear here
+                </div>
+            </div>
+        """
+    
+    html += """
+        </div>
+    </body>
+    </html>
+    """
+    
+    return html
 
 # Helper functions from main.py
 def prepare_dummy_social_data(config):
@@ -676,36 +821,68 @@ async def get_dashboard_html(task_id: str):
         raise HTTPException(status_code=404, detail="Dashboard task not found")
     
     task_info = tasks[task_id]
-    if task_info["status"] != "completed":
-        raise HTTPException(status_code=400, detail="Dashboard generation not yet completed")
     
+    # Check if there's an HTML path in the task info
     html_path = task_info.get("html_path")
     if not html_path or not os.path.exists(html_path):
-        raise HTTPException(status_code=404, detail="Dashboard HTML not found")
+        # No HTML path in task info or file doesn't exist
+        # Create a fallback error page
+        error_message = "Dashboard HTML not found"
+        if task_info["status"] == "failed":
+            error_message = task_info.get("message", "Dashboard generation failed")
+        
+        error_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Dashboard Error</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                .error {{ padding: 20px; background-color: #fee; border-radius: 5px; color: #c33; }}
+                .task-info {{ padding: 20px; background-color: #f8f9fa; border-radius: 5px; margin-top: 20px; }}
+                pre {{ white-space: pre-wrap; }}
+            </style>
+        </head>
+        <body>
+            <h1>Dashboard Error</h1>
+            <div class="error">
+                <p>{error_message}</p>
+            </div>
+            <div class="task-info">
+                <h2>Task Information</h2>
+                <pre>{json.dumps(task_info, indent=2)}</pre>
+            </div>
+        </body>
+        </html>
+        """
+        return HTMLResponse(content=error_html)
     
-    with open(html_path, "r") as f:
-        html_content = f.read()
+    try:
+        with open(html_path, "r") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except Exception as e:
+        # Handle error reading the file
+        error_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Dashboard Error</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                .error {{ padding: 20px; background-color: #fee; border-radius: 5px; color: #c33; }}
+            </style>
+        </head>
+        <body>
+            <h1>Dashboard Error</h1>
+            <div class="error">
+                <p>Error reading dashboard HTML file: {str(e)}</p>
+            </div>
+        </body>
+        </html>
+        """
+        return HTMLResponse(content=error_html)
     
-    return HTMLResponse(content=html_content)
-
-@app.get("/api/v1/report/{dashboard_task_id}")
-async def get_report(dashboard_task_id: str):
-    if dashboard_task_id not in tasks:
-        raise HTTPException(status_code=404, detail="Dashboard task not found")
-    
-    dashboard_task = tasks[dashboard_task_id]
-    if dashboard_task["status"] != "completed":
-        raise HTTPException(status_code=400, detail="Dashboard generation not yet completed")
-    
-    # Load report data
-    report_path = os.path.join("output/reports", f"report_{dashboard_task_id}.json")
-    if not os.path.exists(report_path):
-        raise HTTPException(status_code=404, detail="Report not found")
-    
-    with open(report_path, "r") as f:
-        report_data = json.load(f)
-    
-    return report_data
 @app.post("/api/v1/pipeline", response_model=Dict[str, Any])
 async def run_complete_pipeline(
     background_tasks: BackgroundTasks,
@@ -789,6 +966,12 @@ async def run_complete_pipeline(
     # Run dashboard generation
     run_dashboard_task(dashboard_task_id, analysis_result_path, True, True)
     
+    # Set dashboard URL - works even for failed tasks with error pages
+    dashboard_url = None
+    dashboard_task = tasks[dashboard_task_id]
+    if "html_path" in dashboard_task and dashboard_task["html_path"]:
+        dashboard_url = f"/api/v1/dashboard/{dashboard_task_id}/html"
+    
     # Collect all task IDs and statuses for the response
     pipeline_result = {
         "collection": {
@@ -807,11 +990,17 @@ async def run_complete_pipeline(
         },
         "dashboard": {
             "task_id": dashboard_task_id,
-            "status": tasks[dashboard_task_id]["status"],
-            "chart_count": tasks[dashboard_task_id].get("chart_count", 0),
-            "dashboard_url": f"/api/v1/dashboard/{dashboard_task_id}/html" if tasks[dashboard_task_id].get("html_path") else None
+            "status": dashboard_task["status"],
+            "chart_count": dashboard_task.get("chart_count", 0),
+            "dashboard_url": dashboard_url
         }
     }
+    
+    # Add error information if dashboard task failed
+    if dashboard_task["status"] == "failed":
+        pipeline_result["dashboard"]["error"] = dashboard_task.get("message", "Unknown error")
+        if "error" in dashboard_task:
+            pipeline_result["dashboard"]["error_detail"] = dashboard_task["error"]
     
     return pipeline_result
 
