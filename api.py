@@ -706,6 +706,114 @@ async def get_report(dashboard_task_id: str):
         report_data = json.load(f)
     
     return report_data
+@app.post("/api/v1/pipeline", response_model=Dict[str, Any])
+async def run_complete_pipeline(
+    background_tasks: BackgroundTasks,
+    request: CollectionRequest = Body(...),
+):
+    """Run the complete feedback analysis pipeline from collection to dashboard."""
+    
+    # Step 1: Data Collection
+    collect_task_id = f"collect_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    
+    # Initialize task status
+    tasks[collect_task_id] = {
+        "status": "pending",
+        "message": "Data collection task created",
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Run collection (not in background since we need to chain tasks)
+    run_collection_task(collect_task_id, request.config)
+    
+    # Check if collection completed successfully
+    if tasks[collect_task_id]["status"] != "completed":
+        return {
+            "error": "Collection task failed",
+            "details": tasks[collect_task_id],
+        }
+    
+    # Step 2: Data Processing
+    process_task_id = f"process_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    tasks[process_task_id] = {
+        "status": "pending",
+        "message": "Data processing task created",
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Get path to collected data
+    collection_data_path = tasks[collect_task_id].get("data_path")
+    
+    # Run processing
+    run_processing_task(process_task_id, collection_data_path)
+    
+    # Check if processing completed successfully
+    if tasks[process_task_id]["status"] != "completed":
+        return {
+            "error": "Processing task failed",
+            "details": tasks[process_task_id],
+        }
+    
+    # Step 3: Data Analysis
+    analysis_task_id = f"analyze_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    tasks[analysis_task_id] = {
+        "status": "pending",
+        "message": "Data analysis task created",
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Get path to processed data
+    processed_data_path = tasks[process_task_id].get("data_path")
+    
+    # Run analysis
+    run_analysis_task(analysis_task_id, processed_data_path)
+    
+    # Check if analysis completed successfully
+    if tasks[analysis_task_id]["status"] != "completed":
+        return {
+            "error": "Analysis task failed",
+            "details": tasks[analysis_task_id],
+        }
+    
+    # Step 4: Dashboard Generation
+    dashboard_task_id = f"dashboard_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    tasks[dashboard_task_id] = {
+        "status": "pending",
+        "message": "Dashboard generation task created",
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Get path to analysis results
+    analysis_result_path = tasks[analysis_task_id].get("data_path")
+    
+    # Run dashboard generation
+    run_dashboard_task(dashboard_task_id, analysis_result_path, True, True)
+    
+    # Collect all task IDs and statuses for the response
+    pipeline_result = {
+        "collection": {
+            "task_id": collect_task_id,
+            "status": tasks[collect_task_id]["status"],
+            "source_counts": tasks[collect_task_id].get("sources", {})
+        },
+        "processing": {
+            "task_id": process_task_id,
+            "status": tasks[process_task_id]["status"]
+        },
+        "analysis": {
+            "task_id": analysis_task_id,
+            "status": tasks[analysis_task_id]["status"],
+            "sentiment_summary": tasks[analysis_task_id].get("sentiment_summary", {})
+        },
+        "dashboard": {
+            "task_id": dashboard_task_id,
+            "status": tasks[dashboard_task_id]["status"],
+            "chart_count": tasks[dashboard_task_id].get("chart_count", 0),
+            "dashboard_url": f"/api/v1/dashboard/{dashboard_task_id}/html" if tasks[dashboard_task_id].get("html_path") else None
+        }
+    }
+    
+    return pipeline_result
 
 @app.delete("/api/v1/task/{task_id}")
 async def delete_task(task_id: str):
